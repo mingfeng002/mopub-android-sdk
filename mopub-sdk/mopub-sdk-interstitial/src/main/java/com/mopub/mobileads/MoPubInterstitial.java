@@ -75,7 +75,7 @@ public class MoPubInterstitial implements CustomEventInterstitialAdapter.CustomE
     @NonNull private MoPubInterstitialView mInterstitialView;
     @Nullable private CustomEventInterstitialAdapter mCustomEventInterstitialAdapter;
     @Nullable private InterstitialAdListener mInterstitialAdListener;
-    @NonNull private Activity mActivity;
+    @NonNull private Context mActivity;
     @NonNull private Handler mHandler;
     @NonNull private final Runnable mAdExpiration;
     @NonNull private volatile InterstitialState mCurrentInterstitialState;
@@ -88,7 +88,8 @@ public class MoPubInterstitial implements CustomEventInterstitialAdapter.CustomE
         void onInterstitialDismissed(MoPubInterstitial interstitial);
     }
 
-    public MoPubInterstitial(@NonNull final Activity activity, @NonNull final String adUnitId) {
+
+    public MoPubInterstitial(@NonNull final Context activity, @NonNull final String adUnitId) {
         mActivity = activity;
 
         mInterstitialView = new MoPubInterstitialView(mActivity);
@@ -287,17 +288,20 @@ public class MoPubInterstitial implements CustomEventInterstitialAdapter.CustomE
     }
 
     private void updatedInsets() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            final Window window = mActivity.getWindow();
-            if (window == null) {
-                return;
+        if(mActivity!=null && mActivity instanceof  Activity){
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                final Window window = ((Activity)mActivity).getWindow();
+                if (window == null) {
+                    return;
+                }
+                final WindowInsets insets = window.getDecorView().getRootWindowInsets();
+                if (insets == null) {
+                    return;
+                }
+                mInterstitialView.setWindowInsets(insets);
             }
-            final WindowInsets insets = window.getDecorView().getRootWindowInsets();
-            if (insets == null) {
-                return;
-            }
-            mInterstitialView.setWindowInsets(insets);
         }
+
     }
 
     public void load() {
@@ -366,7 +370,7 @@ public class MoPubInterstitial implements CustomEventInterstitialAdapter.CustomE
     }
 
     @NonNull
-    public Activity getActivity() {
+    public Context getActivity() {
         return mActivity;
     }
 
